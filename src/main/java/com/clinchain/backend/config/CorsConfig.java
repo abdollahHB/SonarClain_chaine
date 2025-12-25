@@ -3,36 +3,44 @@ package com.clinchain.backend.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
+
+import java.util.List;
 
 @Configuration
 public class CorsConfig {
 
     @Bean
-    public CorsFilter corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    public CorsConfigurationSource corsConfigurationSource() {
+
         CorsConfiguration config = new CorsConfiguration();
 
-        // Autoriser toutes les origines (ou spécifiez votre IP)
-        config.addAllowedOrigin("*");
-        // Ou plus sécurisé :
-        // config.addAllowedOrigin("http://192.168.11.101:*");
-
-        // Autoriser toutes les méthodes HTTP
-        config.addAllowedMethod("*");
-
-        // Autoriser tous les headers
-        config.addAllowedHeader("*");
-
-        // Autoriser les credentials (important pour JWT)
+        // ✅ Autoriser JWT / cookies
         config.setAllowCredentials(true);
 
-        // Si vous utilisez allowCredentials, ne pas utiliser "*" pour origin
-        // Utilisez plutôt :
-        config.setAllowedOriginPatterns(java.util.List.of("*"));
+        // ✅ ORIGINES DYNAMIQUES (PORT VARIABLE)
+        config.setAllowedOriginPatterns(List.of(
+                "http://localhost:*",
+                "http://127.0.0.1:*"
+        ));
+
+        // ✅ Méthodes HTTP autorisées
+        config.setAllowedMethods(List.of(
+                "GET", "POST", "PUT", "DELETE", "OPTIONS"
+        ));
+
+        // ✅ Headers autorisés
+        config.setAllowedHeaders(List.of("*"));
+
+        // (optionnel)
+        config.setExposedHeaders(List.of("Authorization"));
+
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
 
         source.registerCorsConfiguration("/**", config);
-        return new CorsFilter(source);
+
+        return source;
     }
 }
